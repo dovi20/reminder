@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#2563eb">
 
     <!-- PWA Meta Tags -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/reminder/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="התזכורות שלי">
@@ -587,7 +587,7 @@
 
             // Register service worker if available
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js').catch(err => {
+                navigator.serviceWorker.register('/reminder/sw.js').catch(err => {
                     console.log('Service Worker registration failed:', err);
                 });
             }

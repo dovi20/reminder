@@ -2,12 +2,13 @@
 const CACHE_NAME = 'reminders-app-v1';
 const STATIC_CACHE = 'static-v1';
 const DYNAMIC_CACHE = 'dynamic-v1';
+const BASE_PATH = '/reminder/';
 
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/sw.js'
+  BASE_PATH,
+  BASE_PATH + 'index.html',
+  BASE_PATH + 'manifest.json',
+  BASE_PATH + 'sw.js'
 ];
 
 // Install event - cache static resources
@@ -84,7 +85,7 @@ self.addEventListener('fetch', event => {
           .catch(() => {
             // If offline and not in cache, return offline page
             if (request.headers.get('accept').includes('text/html')) {
-              return caches.match('/');
+              return caches.match(BASE_PATH);
             }
             return new Response('Offline', {
               status: 503,
@@ -122,13 +123,13 @@ self.addEventListener('notificationclick', event => {
     clients.matchAll({ type: 'window' }).then(clientList => {
       // If a window is already open, focus it
       for (const client of clientList) {
-        if (client.url === '/' && 'focus' in client) {
+        if (client.url.includes(BASE_PATH) && 'focus' in client) {
           return client.focus();
         }
       }
       // Otherwise open a new window
       if (clients.openWindow) {
-        return clients.openWindow('/');
+        return clients.openWindow(BASE_PATH);
       }
     })
   );
@@ -145,8 +146,8 @@ self.addEventListener('sync', event => {
 self.addEventListener('push', event => {
   const options = {
     body: event.data.text(),
-    icon: '/icon-192.png',
-    badge: '/badge-72.png',
+    icon: BASE_PATH + 'icon-192.png',
+    badge: BASE_PATH + 'badge-72.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -156,12 +157,12 @@ self.addEventListener('push', event => {
       {
         action: 'explore',
         title: 'פתח אפליקציה',
-        icon: '/checkmark.png'
+        icon: BASE_PATH + 'checkmark.png'
       },
       {
         action: 'close',
         title: 'סגור',
-        icon: '/xmark.png'
+        icon: BASE_PATH + 'xmark.png'
       }
     ]
   };
