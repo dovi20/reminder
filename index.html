@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>התזכורות שלי</title>
+    <meta name="theme-color" content="#2563eb">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px 20px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .task-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .task-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .task-item.completed {
+            background: #f0f9ff;
+            border-color: #0ea5e9;
+            opacity: 0.8;
+        }
+
+        .task-item.urgent {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1f2937;
+        }
+
+        .task-time {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-done {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-done:hover {
+            background: #059669;
+        }
+
+        .btn-snooze {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-snooze:hover {
+            background: #d97706;
+        }
+
+        .btn-skip {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-skip:hover {
+            background: #4b5563;
+        }
+
+        .add-task-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+
+        .add-task-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .radio-option:hover {
+            background: #f1f5f9;
+        }
+
+        .radio-option.selected {
+            background: #dbeafe;
+            border-color: #2563eb;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: #6b7280;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #6b7280;
+            padding: 40px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .add-task-btn {
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 התזכורות שלי</h1>
+            <div class="subtitle">הכל תחת השליטה</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number" id="todayCount">0</div>
+                <div class="stat-label">היום</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="urgentCount">0</div>
+                <div class="stat-label">דחוף</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="completedCount">0</div>
+                <div class="stat-label">הושלם</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="task-section">
+                <div class="section-title">
+                    🔥 דחוף
+                </div>
+                <div id="urgentTasks"></div>
+            </div>
+
+            <div class="task-section">
+                <div class="section-title">
+                    ⏰ היום
+                </div>
+                <div id="todayTasks"></div>
+            </div>
+
+            <div class="task-section">
+                <div class="section-title">
+                    📅 השבוע
+                </div>
+                <div id="weekTasks"></div>
+            </div>
+        </div>
+    </div>
+
+    <button class="add-task-btn" onclick="openAddTaskModal()">+</button>
+
+    <!-- Modal for adding tasks -->
+    <div class="modal" id="addTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>משימה חדשה</h2>
+            </div>
+            
+            <form id="addTaskForm">
+                <div class="form-group">
+                    <label class="form-label">שם המשימה</label>
+                    <input type="text" class="form-input" id="taskTitle" placeholder="למשל: שתיית מים" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">קטגוריה</label>
+                    <div class="radio-group">
+                        <div class="radio-option" data-value="daily">📅 יומית</div>
+                        <div class="radio-option" data-value="weekly">📊 שבועית</div>
+                        <div class="radio-option" data-value="monthly">📆 חודשית</div>
+                        <div class="radio-option selected" data-value="once">🎯 חד פעמית</div>
+                    </div>
+                    <input type="hidden" id="taskCategory" value="once">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">זמן תזכורת</label>
+                    <input type="time" class="form-input" id="taskTime" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">תאריך</label>
+                    <input type="date" class="form-input" id="taskDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">רמת חשיבות</label>
+                    <div class="radio-group">
+                        <div class="radio-option selected" data-value="normal">😌 רגילה</div>
+                        <div class="radio-option" data-value="important">⚠️ חשובה</div>
+                        <div class="radio-option" data-value="urgent">🔥 קריטית</div>
+                    </div>
+                    <input type="hidden" id="taskPriority" value="normal">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">💾 שמור</button>
+                    <button type="button" class="btn-secondary" onclick="closeAddTaskModal()">ביטול</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Global variables
+        let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        let notificationPermission = false;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default date and time
+            const now = new Date();
+            document.getElementById('taskDate').value = now.toISOString().split('T')[0];
+            document.getElementById('taskTime').value = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            
+            // Request notification permission
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    notificationPermission = permission === 'granted';
+                });
+            }
+
+            // Set up radio button handlers
+            setupRadioGroups();
+            
+            // Render tasks
+            renderTasks();
+            
+            // Set up periodic checks for notifications
+            setInterval(checkForNotifications, 60000); // Check every minute
+        });
+
+        function setupRadioGroups() {
+            document.querySelectorAll('.radio-group').forEach(group => {
+                group.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('radio-option')) {
+                        // Remove selected from all options in this group
+                        group.querySelectorAll('.radio-option').forEach(option => {
+                            option.classList.remove('selected');
+                        });
+                        
+                        // Add selected to clicked option
+                        e.target.classList.add('selected');
+                        
+                        // Update hidden input
+                        const hiddenInput = group.parentElement.querySelector('input[type="hidden"]');
+                        if (hiddenInput) {
+                            hiddenInput.value = e.target.dataset.value;
+                        }
+                    }
+                });
+            });
+        }
+
+        function openAddTaskModal() {
+            document.getElementById('addTaskModal').style.display = 'block';
+        }
+
+        function closeAddTaskModal() {
+            document.getElementById('addTaskModal').style.display = 'none';
+            document.getElementById('addTaskForm').reset();
+            
+            // Reset radio buttons
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector('[data-value="once"]').classList.add('selected');
+            document.querySelector('[data-value="normal"]').classList.add('selected');
+            document.getElementById('taskCategory').value = 'once';
+            document.getElementById('taskPriority').value = 'normal';
+        }
+
+        // Handle form submission
+        document.getElementById('addTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const task = {
+                id: Date.now(),
+                title: document.getElementById('taskTitle').value,
+                category: document.getElementById('taskCategory').value,
+                time: document.getElementById('taskTime').value,
+                date: document.getElementById('taskDate').value,
+                priority: document.getElementById('taskPriority').value,
+                completed: false,
+                snoozedUntil: null,
+                createdAt: new Date().toISOString()
+            };
+            
+            tasks.push(task);
+            saveTasks();
+            renderTasks();
+            closeAddTaskModal();
+            showNotification('המשימה נשמרה בהצלחה! 🎉');
+        });
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function renderTasks() {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            
+            const urgentTasks = [];
+            const todayTasks = [];
+            const weekTasks = [];
+            
+            let completedToday = 0;
+            
+            tasks.forEach(task => {
+                if (task.completed && task.completedDate === today) {
+                    completedToday++;
+                }
+                
+                if (task.completed) return;
+                
+                const taskDate = new Date(task.date);
+                const taskTime = task.time.split(':');
+                const taskMinutes = parseInt(taskTime[0]) * 60 + parseInt(taskTime[1]);
+                
+                const isToday = task.date === today;
+                const isPast = taskDate < now || (isToday && taskMinutes < currentTime);
+                const isThisWeek = taskDate <= new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                
+                if (isPast || task.priority === 'urgent') {
+                    urgentTasks.push({ ...task, isOverdue: isPast });
+                } else if (isToday) {
+                    todayTasks.push(task);
+                } else if (isThisWeek) {
+                    weekTasks.push(task);
+                }
+            });
+            
+            // Update stats
+            document.getElementById('todayCount').textContent = todayTasks.length + urgentTasks.filter(t => t.date === today).length;
+            document.getElementById('urgentCount').textContent = urgentTasks.length;
+            document.getElementById('completedCount').textContent = completedToday;
+            
+            // Render sections
+            renderTaskSection('urgentTasks', urgentTasks, true);
+            renderTaskSection('todayTasks', todayTasks);
+            renderTaskSection('weekTasks', weekTasks);
+        }
+
+        function renderTaskSection(containerId, sectionTasks, isUrgent = false) {
+            const container = document.getElementById(containerId);
+            
+            if (sectionTasks.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✨</div><div>אין משימות</div></div>';
+                return;
+            }
+            
+            container.innerHTML = sectionTasks.map(task => `
+                <div class="task-item ${isUrgent ? 'urgent' : ''} ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
+                    <div class="task-content">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-time">
+                            ${task.time} • ${formatDate(task.date)}
+                            ${task.isOverdue ? ' • ⏰ באיחור' : ''}
+                            ${task.priority === 'important' ? ' • ⚠️ חשוב' : ''}
+                            ${task.priority === 'urgent' ? ' • 🔥 קריטי' : ''}
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-done" onclick="completeTask(${task.id})">✅</button>
+                        <button class="btn btn-snooze" onclick="snoozeTask(${task.id})">⏰</button>
+                        <button class="btn btn-skip" onclick="skipTask(${task.id})">❌</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const today = new Date();
+            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+            const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+            
+            if (dateStr === today.toISOString().split('T')[0]) return 'היום';
+            if (dateStr === yesterday.toISOString().split('T')[0]) return 'אתמול';
+            if (dateStr === tomorrow.toISOString().split('T')[0]) return 'מחר';
+            
+            return date.toLocaleDateString('he-IL');
+        }
+
+        function completeTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = true;
+                task.completedDate = new Date().toISOString().split('T')[0];
+                task.completedAt = new Date().toISOString();
+                
+                // Handle recurring tasks
+                if (task.category !== 'once') {
+                    createNextRecurrence(task);
+                }
+                
+                saveTasks();
+                renderTasks();
+                showNotification('כל הכבוד! המשימה הושלמה 🎉');
+            }
+        }
+
+        function snoozeTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                const now = new Date();
+                const snoozeTime = new Date(now.getTime() + 15 * 60 * 1000); // 15 minutes
+                task.snoozedUntil = snoozeTime.toISOString();
+                
+                saveTasks();
+                renderTasks();
+                showNotification('המשימה נדחתה ל-15 דקות ⏰');
+            }
+        }
+
+        function skipTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.skipped = true;
+                task.skippedAt = new Date().toISOString();
+                
+                // Handle recurring tasks
+                if (task.category !== 'once') {
+                    createNextRecurrence(task);
+                }
+                
+                saveTasks();
+                renderTasks();
+                showNotification('המשימה נדלגה');
+            }
+        }
+
+        function createNextRecurrence(originalTask) {
+            const nextDate = new Date(originalTask.date);
+            
+            switch (originalTask.category) {
+                case 'daily':
+                    nextDate.setDate(nextDate.getDate() + 1);
+                    break;
+                case 'weekly':
+                    nextDate.setDate(nextDate.getDate() + 7);
+                    break;
+                case 'monthly':
+                    nextDate.setMonth(nextDate.getMonth() + 1);
+                    break;
+            }
+            
+            const newTask = {
+                ...originalTask,
+                id: Date.now(),
+                date: nextDate.toISOString().split('T')[0],
+                completed: false,
+                skipped: false,
+                snoozedUntil: null,
+                createdAt: new Date().toISOString()
+            };
+            
+            tasks.push(newTask);
+        }
+
+        function checkForNotifications() {
+            if (!notificationPermission) return;
+            
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            const today = now.toISOString().split('T')[0];
+            
+            tasks.forEach(task => {
+                if (task.completed || task.skipped) return;
+                
+                const taskTime = task.time.split(':');
+                const taskMinutes = parseInt(taskTime[0]) * 60 + parseInt(taskTime[1]);
+                
+                if (task.date === today && Math.abs(currentTime - taskMinutes) <= 1) {
+                    showBrowserNotification(task);
+                }
+            });
+        }
+
+        function showBrowserNotification(task) {
+            if (notificationPermission) {
+                new Notification(`🔔 ${task.title}`, {
+                    body: `זמן לבצע את המשימה - ${task.time}`,
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📱</text></svg>'
+                });
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('addTaskModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddTaskModal();
+            }
+        });
+    </script>
+</body>
+</html>
