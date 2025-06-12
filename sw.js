@@ -1,31 +1,100 @@
 // Service Worker for התזכורות שלי
 const CACHE_NAME = 'reminders-app-v1';
-const urlsToCache = [
+const STATIC_CACHE = 'static-v1';
+const DYNAMIC_CACHE = 'dynamic-v1';
+
+const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/sw.js'
 ];
 
-// Install event - cache resources
+// Install event - cache static resources
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+    Promise.all([
+      caches.open(STATIC_CACHE)
+        .then(cache => {
+          return cache.addAll(STATIC_ASSETS);
+        }),
+      caches.open(DYNAMIC_CACHE)
+        .then(cache => {
+          return cache.addAll([]);
+        })
+    ])
   );
   self.skipWaiting();
 });
 
 // Fetch event - serve from cache when offline
 self.addEventListener('fetch', event => {
+  const request = event.request;
+  
+  // Skip non-GET requests
+  if (request.method !== 'GET') {
+    return;
+  }
+
+  // Handle API requests differently
+  if (request.url.includes('/api/')) {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          // Clone the response
+          const responseToCache = response.clone();
+          
+          // Cache the response
+          caches.open(DYNAMIC_CACHE)
+            .then(cache => {
+              cache.put(request, responseToCache);
+            });
+          
+          return response;
+        })
+        .catch(() => {
+          // If offline, try to serve from cache
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+
+  // For static assets, use cache-first strategy
   event.respondWith(
-    caches.match(event.request)
+    caches.match(request)
       .then(response => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      }
-    )
+        if (response) {
+          return response;
+        }
+
+        return fetch(request)
+          .then(networkResponse => {
+            // Clone the response
+            const responseToCache = networkResponse.clone();
+            
+            // Cache the response
+            caches.open(DYNAMIC_CACHE)
+              .then(cache => {
+                cache.put(request, responseToCache);
+              });
+            
+            return networkResponse;
+          })
+          .catch(() => {
+            // If offline and not in cache, return offline page
+            if (request.headers.get('accept').includes('text/html')) {
+              return caches.match('/');
+            }
+            return new Response('Offline', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: new Headers({
+                'Content-Type': 'text/plain'
+              })
+            });
+          });
+      })
   );
 });
 
@@ -35,7 +104,7 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
+          if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
             return caches.delete(cacheName);
           }
         })
@@ -50,20 +119,56 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
   
   event.waitUntil(
-    clients.matchAll().then(clientList => {
-      if (clientList.length > 0) {
-        return clientList[0].focus();
+    clients.matchAll({ type: 'window' }).then(clientList => {
+      // If a window is already open, focus it
+      for (const client of clientList) {
+        if (client.url === '/' && 'focus' in client) {
+          return client.focus();
+        }
       }
-      return clients.openWindow('/');
+      // Otherwise open a new window
+      if (clients.openWindow) {
+        return clients.openWindow('/');
+      }
     })
   );
 });
 
-// Background sync for notifications (if supported)
+// Background sync for notifications
 self.addEventListener('sync', event => {
   if (event.tag === 'background-sync') {
     event.waitUntil(checkForNotifications());
   }
+});
+
+// Handle push notifications
+self.addEventListener('push', event => {
+  const options = {
+    body: event.data.text(),
+    icon: '/icon-192.png',
+    badge: '/badge-72.png',
+    vibrate: [100, 50, 100],
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: 1
+    },
+    actions: [
+      {
+        action: 'explore',
+        title: 'פתח אפליקציה',
+        icon: '/checkmark.png'
+      },
+      {
+        action: 'close',
+        title: 'סגור',
+        icon: '/xmark.png'
+      }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification('התזכורות שלי', options)
+  );
 });
 
 function checkForNotifications() {

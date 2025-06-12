@@ -2,17 +2,38 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>התזכורות שלי</title>
     <meta name="theme-color" content="#2563eb">
 
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="התזכורות שלי">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-touch-fullscreen" content="yes">
+    
+    <!-- iOS Icons -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%232563eb' rx='20'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>📱</text></svg>">
-
+    <link rel="apple-touch-icon" sizes="152x152" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 152 152'><rect width='152' height='152' fill='%232563eb' rx='30'/><text x='76' y='95' font-size='75' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%232563eb' rx='35'/><text x='90' y='115' font-size='90' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-icon" sizes="167x167" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 167 167'><rect width='167' height='167' fill='%232563eb' rx='33'/><text x='83.5' y='105' font-size='85' text-anchor='middle' fill='white'>📱</text></svg>">
+    
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1290 2796'><rect width='1290' height='2796' fill='%232563eb'/><text x='645' y='1398' font-size='200' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1179 2556'><rect width='1179' height='2556' fill='%232563eb'/><text x='589.5' y='1278' font-size='180' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1284 2778'><rect width='1284' height='2778' fill='%232563eb'/><text x='642' y='1389' font-size='190' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1170 2532'><rect width='1170' height='2532' fill='%232563eb'/><text x='585' y='1266' font-size='175' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1125 2436'><rect width='1125' height='2436' fill='%232563eb'/><text x='562.5' y='1218' font-size='170' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1242 2688'><rect width='1242' height='2688' fill='%232563eb'/><text x='621' y='1344' font-size='185' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 828 1792'><rect width='828' height='1792' fill='%232563eb'/><text x='414' y='896' font-size='120' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 2)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 750 1624'><rect width='750' height='1624' fill='%232563eb'/><text x='375' y='812' font-size='110' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 2)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 780 1688'><rect width='780' height='1688' fill='%232563eb'/><text x='390' y='844' font-size='115' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 2)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 856 1852'><rect width='856' height='1852' fill='%232563eb'/><text x='428' y='926' font-size='120' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 2)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 786 1704'><rect width='786' height='1704' fill='%232563eb'/><text x='393' y='852' font-size='115' text-anchor='middle' fill='white'>📱</text></svg>">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 2)" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 860 1864'><rect width='860' height='1864' fill='%232563eb'/><text x='430' y='932' font-size='120' text-anchor='middle' fill='white'>📱</text></svg>">
+    
     <!-- Notification Permission Button Styles -->
     <style id="notification-styles">
         .notification-banner {
