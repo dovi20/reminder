@@ -5,6 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>התזכורות שלי</title>
     <meta name="theme-color" content="#2563eb">
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="התזכורות שלי">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%232563eb' rx='20'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>📱</text></svg>">
+
+    <!-- Notification Permission Button Styles -->
+    <style id="notification-styles">
+        .notification-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            z-index: 3000;
+            display: none;
+        }
+
+        .notification-banner button {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .notification-banner button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .install-instructions {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .install-instructions h3 {
+            color: #0369a1;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .install-instructions ol {
+            margin: 10px 0;
+            padding-right: 20px;
+        }
+
+        .install-instructions li {
+            margin-bottom: 5px;
+        }
+    </style>
     <style>
         * {
             margin: 0;
@@ -354,6 +417,28 @@
     </style>
 </head>
 <body>
+    <!-- Notification Permission Banner -->
+    <div class="notification-banner" id="notificationBanner">
+        <div style="margin-bottom: 10px;">🔔 כדי לקבל התראות, אנא אפשר הודעות</div>
+        <button onclick="requestNotificationPermission()">אפשר התראות</button>
+        <button onclick="showInstallInstructions()">איך מתקינים?</button>
+        <button onclick="dismissNotificationBanner()">לא עכשיו</button>
+    </div>
+
+    <!-- Install Instructions -->
+    <div class="install-instructions" id="installInstructions">
+        <h3>📱 הוראות התקנה ל-iPhone (Safari)</h3>
+        <ol>
+            <li>לחץ על כפתור השיתוף <strong>⬆️</strong> בתחתית המסך</li>
+            <li>גלול למטה ובחר <strong>"הוסף לדף הבית"</strong></li>
+            <li>לחץ <strong>"הוסף"</strong> בפינה הימנית העליונה</li>
+            <li>פתח את האפליקציה מדף הבית</li>
+            <li>כשתתבקש, אפשר התראות</li>
+        </ol>
+        <p><strong>חשוב:</strong> התראות יעבדו רק כשהאפליקציה מותקנת בדף הבית ופתוחה ברקע!</p>
+        <button onclick="hideInstallInstructions()" style="background: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 6px; margin-top: 10px;">הבנתי</button>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>📱 התזכורות שלי</h1>
@@ -466,22 +551,25 @@
             const now = new Date();
             document.getElementById('taskDate').value = now.toISOString().split('T')[0];
             document.getElementById('taskTime').value = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-            
-            // Request notification permission
-            if ('Notification' in window) {
-                Notification.requestPermission().then(permission => {
-                    notificationPermission = permission === 'granted';
-                });
-            }
+
+            // Check notification permission status
+            checkNotificationPermission();
 
             // Set up radio button handlers
             setupRadioGroups();
-            
+
             // Render tasks
             renderTasks();
-            
+
             // Set up periodic checks for notifications
             setInterval(checkForNotifications, 60000); // Check every minute
+
+            // Register service worker if available
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').catch(err => {
+                    console.log('Service Worker registration failed:', err);
+                });
+            }
         });
 
         function setupRadioGroups() {
@@ -735,18 +823,92 @@
 
         function showBrowserNotification(task) {
             if (notificationPermission) {
-                new Notification(`🔔 ${task.title}`, {
+                const options = {
                     body: `זמן לבצע את המשימה - ${task.time}`,
-                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📱</text></svg>'
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%232563eb" rx="20"/><text x="50" y="65" font-size="50" text-anchor="middle" fill="white">📱</text></svg>',
+                    badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%232563eb" rx="20"/><text x="50" y="65" font-size="50" text-anchor="middle" fill="white">📱</text></svg>',
+                    tag: `task-${task.id}`,
+                    requireInteraction: true,
+                    vibrate: [200, 100, 200],
+                    actions: [
+                        {
+                            action: 'complete',
+                            title: '✅ הושלם',
+                            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">✅</text></svg>'
+                        },
+                        {
+                            action: 'snooze',
+                            title: '⏰ דחה',
+                            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⏰</text></svg>'
+                        }
+                    ]
+                };
+
+                const notification = new Notification(`🔔 ${task.title}`, options);
+
+                notification.onclick = function() {
+                    window.focus();
+                    this.close();
+                };
+            }
+        }
+
+        function checkNotificationPermission() {
+            if ('Notification' in window) {
+                const permission = Notification.permission;
+                if (permission === 'granted') {
+                    notificationPermission = true;
+                } else if (permission === 'default') {
+                    // Check if running as PWA
+                    const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                                  window.navigator.standalone === true;
+
+                    if (!isPWA) {
+                        // Show install instructions for better notification support
+                        setTimeout(() => {
+                            document.getElementById('installInstructions').style.display = 'block';
+                        }, 2000);
+                    } else {
+                        // Show banner to request permission
+                        document.getElementById('notificationBanner').style.display = 'block';
+                    }
+                }
+            }
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    notificationPermission = permission === 'granted';
+                    if (permission === 'granted') {
+                        showNotification('התראות הופעלו בהצלחה! 🔔');
+                        dismissNotificationBanner();
+                    } else if (permission === 'denied') {
+                        showNotification('התראות נדחו. תוכל לאפשר אותן בהגדרות הדפדפן');
+                        dismissNotificationBanner();
+                    }
                 });
             }
+        }
+
+        function dismissNotificationBanner() {
+            document.getElementById('notificationBanner').style.display = 'none';
+        }
+
+        function showInstallInstructions() {
+            document.getElementById('installInstructions').style.display = 'block';
+            document.getElementById('notificationBanner').style.display = 'none';
+        }
+
+        function hideInstallInstructions() {
+            document.getElementById('installInstructions').style.display = 'none';
         }
 
         function showNotification(message) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.style.display = 'block';
-            
+
             setTimeout(() => {
                 notification.style.display = 'none';
             }, 3000);
